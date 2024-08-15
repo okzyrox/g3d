@@ -1,5 +1,8 @@
 ![g3d_logo](https://user-images.githubusercontent.com/19754251/91235387-502bb980-e6ea-11ea-9d12-74f762f69859.png)
 
+> [!NOTE] 
+> This is a fork of groverburger's 3D Engine, and is mainly designed for my own personal changes that may contrast with or not work out-of-the-box for projects based on groverburger's original engine. Check out his engine [here](https://github.com/groverburger/g3d), and consider supporting it.
+
 groverburger's 3D engine (g3d) simplifies [LÖVE](http://love2d.org)'s 3d capabilities to be as simple to use as possible.<br/>
 View the original forum post [here](https://love2d.org/forums/viewtopic.php?f=5&t=86350).
 
@@ -78,3 +81,10 @@ For more information, check out the [g3d wiki](https://github.com/groverburger/g
 ## Additional Help and FAQ 
 
 Check out the [g3d wiki](https://github.com/groverburger/g3d/wiki)!
+
+
+## License
+
+`g3d` is licensed under MIT.
+
+`classic` is licensed under MIT
