@@ -211,6 +211,4 @@ function camera:mousemoved(dx,dy)
 end
 
 -- create one camera to function as a default static camera
-local CameraList = cameras()
-
-return CameraList
+return cameras
