@@ -3,7 +3,7 @@
 -- MIT license
 
 local vectors = require(g3d.path .. ".vectors")
-local Class = require(g3d.path .. ".lib.classic")
+local Class = require("lib.classic")
 
 local vectorCrossProduct = vectors.crossProduct
 local vectorDotProduct = vectors.dotProduct

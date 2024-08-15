@@ -5,7 +5,7 @@
 local Matrix = require(g3d.path .. ".matrix")
 local g3d = g3d -- save a reference to g3d in case the user makes it non-global
 
-local Class = require(g3d.path .. ".lib.classic")
+local Class = require("lib.classic")
 
 local cameras = Class:extend()
 local camera = Class:extend()

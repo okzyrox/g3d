@@ -4,7 +4,7 @@
 -- MIT license
 
 local cameras = require(g3d.path .. ".camera")
-local Class = require(g3d.path .. ".lib.classic")
+local Class = require("lib.classic")
 
 local world = Class:extend()
 

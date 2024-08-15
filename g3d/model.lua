@@ -8,7 +8,7 @@ local collisions = require(g3d.path .. ".collisions")
 local vectors = require(g3d.path .. ".vectors")
 local camera = require(g3d.path .. ".camera")
 
-local Class = require(g3d.path .. ".lib.classic")
+local Class = require("lib.classic")
 
 local vectorCrossProduct = vectors.crossProduct
 local vectorNormalize = vectors.normalize

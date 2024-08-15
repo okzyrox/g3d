@@ -2,7 +2,7 @@
 -- september 2021
 -- MIT license
 
-local Class = require(g3d.path .. ".lib.classic")
+local Class = require("lib.classic")
 
 ----------------------------------------------------------------------------------------------------
 -- simple obj loader
