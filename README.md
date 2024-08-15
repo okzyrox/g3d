@@ -9,6 +9,7 @@ View the original forum post [here](https://love2d.org/forums/viewtopic.php?f=5&
 ![pic1](demo.gif)
 
 The entire `main.lua` file for the Earth and Moon demo is under 30 lines, as shown here:
+Note that inside your `conf.lua` file, it is recommended to have the `window.depth` option set to 16 or more to not experience rendering issues
 ```lua
 -- g3d example (no world)
 local g3d = require "path.to.g3d"

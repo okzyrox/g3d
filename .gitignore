@@ -5,3 +5,8 @@ Thumbs.db
 # Editors
 .idea/
 .vscode/
+
+# Local tests
+
+conf.lua
+main.lua

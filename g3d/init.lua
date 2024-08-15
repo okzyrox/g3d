@@ -48,11 +48,18 @@ g3d = {
 -- the shader is what does the heavy lifting, displaying 3D meshes on your 2D monitor
 g3d.shader = love.graphics.newShader(g3d.shaderpath)
 g3d.world = require(g3d.path .. ".world")
-g3d.newModel = require(g3d.path .. ".model")
+g3d.model = require(g3d.path .. ".model")
 g3d.cameras = require(g3d.path .. ".camera")
 g3d.collisions = require(g3d.path .. ".collisions")
 g3d.loader = require(g3d.path .. ".loader")
 g3d.vectors = require(g3d.path .. ".vectors")
+
+-- Compat with older g3d
+
+-- this returns a new instance of the model class
+-- a model must be given a .obj file or equivalent lua table, and a texture
+-- translation, rotation, and scale are all 3d vectors and are all optional
+g3d.newModel = g3d.model
 
 -- so that far polygons don't overlap near polygons
 love.graphics.setDepthMode("lequal", true)

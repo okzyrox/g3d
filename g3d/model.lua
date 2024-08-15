@@ -7,6 +7,9 @@ local loader = require(g3d.path .. ".loader")
 local collisions = require(g3d.path .. ".collisions")
 local vectors = require(g3d.path .. ".vectors")
 local camera = require(g3d.path .. ".camera")
+
+local Class = require(g3d.path .. ".lib.classic")
+
 local vectorCrossProduct = vectors.crossProduct
 local vectorNormalize = vectors.normalize
 
@@ -15,28 +18,18 @@ local vectorNormalize = vectors.normalize
 ----------------------------------------------------------------------------------------------------
 
 local model = {}
-model.__index = model
+local Model = Class:extend()
 
--- define some default properties that every model should inherit
--- that being the standard vertexFormat and basic 3D shader
-model.vertexFormat = {
-    { "VertexPosition", "float", 3 },
-    { "VertexTexCoord", "float", 2 },
-    { "VertexNormal",   "float", 3 },
-    { "VertexColor",    "byte",  4 },
-}
-model.shader = g3d.shader
+local shader = g3d.shader
 
--- this returns a new instance of the model class
--- a model must be given a .obj file or equivalent lua table, and a texture
--- translation, rotation, and scale are all 3d vectors and are all optional
-local function newModel(verts, texture, translation, rotation, scale)
-    local self = setmetatable({}, model)
-
+function Model:new(obj, texture, translation, rotation, scale)
+    if obj == nil and texture == nil and translation == nil and rotation == nil and scale == nil then
+        return self
+    end
     -- if verts is a string, use it as a path to a .obj file
     -- otherwise verts is a table, use it as a model defintion
-    if type(verts) == "string" then
-        verts = loader:loadObj(verts)
+    if type(obj) == "string" then
+        obj = loader:loadObj(obj)
     end
 
     -- if texture is a string, use it as a path to an image file
@@ -45,8 +38,15 @@ local function newModel(verts, texture, translation, rotation, scale)
         texture = love.graphics.newImage(texture)
     end
 
-    -- initialize my variables
-    self.verts = verts
+    self.vertexFormat = {
+        { "VertexPosition", "float", 3 },
+        { "VertexTexCoord", "float", 2 },
+        { "VertexNormal",   "float", 3 },
+        { "VertexColor",    "byte",  4 },
+    }
+    self.shader = shader
+
+    self.verts = obj
     self.texture = texture
     self.mesh = love.graphics.newMesh(self.vertexFormat, self.verts, "triangles")
     self.mesh:setTexture(self.texture)
@@ -59,7 +59,7 @@ end
 
 -- populate model's normals in model's mesh automatically
 -- if true is passed in, then the normals are all flipped
-function model:makeNormals(isFlipped)
+function Model:makeNormals(isFlipped)
     for i = 1, #self.verts, 3 do
         if isFlipped then
             self.verts[i + 1], self.verts[i + 2] = self.verts[i + 2], self.verts[i + 1]
@@ -81,7 +81,7 @@ function model:makeNormals(isFlipped)
 end
 
 -- move and rotate given two 3d vectors
-function model:setTransform(translation, rotation, scale)
+function Model:setTransform(translation, rotation, scale)
     self.translation = translation or self.translation
     self.rotation = rotation or self.rotation
     self.scale = scale or self.scale
@@ -89,7 +89,7 @@ function model:setTransform(translation, rotation, scale)
 end
 
 -- move given one 3d vector
-function model:setTranslation(tx, ty, tz)
+function Model:setTranslation(tx, ty, tz)
     self.translation[1] = tx
     self.translation[2] = ty
     self.translation[3] = tz
@@ -98,7 +98,7 @@ end
 
 -- rotate given one 3d vector
 -- using euler angles
-function model:setRotation(rx, ry, rz)
+function Model:setRotation(rx, ry, rz)
     self.rotation[1] = rx
     self.rotation[2] = ry
     self.rotation[3] = rz
@@ -107,7 +107,7 @@ function model:setRotation(rx, ry, rz)
 end
 
 -- create a quaternion from an axis and an angle
-function model:setAxisAngleRotation(x, y, z, angle)
+function Model:setAxisAngleRotation(x, y, z, angle)
     x, y, z = vectorNormalize(x, y, z)
     angle = angle / 2
 
@@ -120,7 +120,7 @@ function model:setAxisAngleRotation(x, y, z, angle)
 end
 
 -- rotate given one quaternion
-function model:setQuaternionRotation(x, y, z, w)
+function Model:setQuaternionRotation(x, y, z, w)
     self.rotation[1] = x
     self.rotation[2] = y
     self.rotation[3] = z
@@ -129,7 +129,7 @@ function model:setQuaternionRotation(x, y, z, w)
 end
 
 -- resize model's matrix based on a given 3d vector
-function model:setScale(sx, sy, sz)
+function Model:setScale(sx, sy, sz)
     self.scale[1] = sx
     self.scale[2] = sy or sx
     self.scale[3] = sz or sx
@@ -137,12 +137,12 @@ function model:setScale(sx, sy, sz)
 end
 
 -- update the model's transformation matrix
-function model:updateMatrix()
+function Model:updateMatrix()
     self.matrix:setTransformationMatrix(self.translation, self.rotation, self.scale)
 end
 
 -- draw the model
-function model:draw(shader)
+function Model:draw(shader)
     local shader = shader or self.shader
     love.graphics.setShader(shader)
     shader:send("modelMatrix", self.matrix)
@@ -156,7 +156,7 @@ function model:draw(shader)
 end
 
 -- the fallback function if ffi was not loaded
-function model:compress()
+function Model:compress()
     print("[g3d warning] Compression requires FFI!\n" .. debug.traceback())
 end
 
@@ -203,24 +203,28 @@ if success then
     end
 end
 
-function model:rayIntersection(...)
+function Model:rayIntersection(...)
     return collisions.rayIntersection(self.verts, self, ...)
 end
 
-function model:isPointInside(...)
+function Model:isPointInside(...)
     return collisions.isPointInside(self.verts, self, ...)
 end
 
-function model:sphereIntersection(...)
+function Model:sphereIntersection(...)
     return collisions.sphereIntersection(self.verts, self, ...)
 end
 
-function model:closestPoint(...)
+function Model:closestPoint(...)
     return collisions.closestPoint(self.verts, self, ...)
 end
 
-function model:capsuleIntersection(...)
+function Model:capsuleIntersection(...)
     return collisions.capsuleIntersection(self.verts, self, ...)
 end
 
-return newModel
+function Model.newModel(obj, texture, translation, rotation, scale)
+    return Model(obj, texture, translation, rotation, scale)
+end
+
+return Model
