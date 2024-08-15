@@ -12,7 +12,7 @@ function love.update(dt)
     timer = timer + dt
     moon:setTranslation(math.cos(timer)*5 + 4, math.sin(timer)*5, 0)
     moon:setRotation(0, 0, timer - math.pi/2)
-    g3d.camera.firstPersonMovement(dt)
+    g3d.camera.update(dt)
     if love.keyboard.isDown "escape" then
         love.event.push "quit"
     end
@@ -25,5 +25,5 @@ function love.draw()
 end
 
 function love.mousemoved(x,y, dx,dy)
-    g3d.camera.firstPersonLook(dx,dy)
+    g3d.camera.mousemoved(dx,dy)
 end

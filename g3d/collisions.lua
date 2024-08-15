@@ -26,14 +26,14 @@ local collisions = {}
 
 -- finds the closest point to the source point on the given line segment
 local function closestPointOnLineSegment(
-        a_x,a_y,a_z, -- point one of line segment
-        b_x,b_y,b_z, -- point two of line segment
-        x,y,z        -- source point
-    )
+    a_x, a_y, a_z,   -- point one of line segment
+    b_x, b_y, b_z,   -- point two of line segment
+    x, y, z          -- source point
+)
     local ab_x, ab_y, ab_z = b_x - a_x, b_y - a_y, b_z - a_z
-    local t = vectorDotProduct(x - a_x, y - a_y, z - a_z, ab_x, ab_y, ab_z) / (ab_x^2 + ab_y^2 + ab_z^2)
+    local t = vectorDotProduct(x - a_x, y - a_y, z - a_z, ab_x, ab_y, ab_z) / (ab_x ^ 2 + ab_y ^ 2 + ab_z ^ 2)
     t = math.min(1, math.max(0, t))
-    return a_x + t*ab_x, a_y + t*ab_y, a_z + t*ab_z
+    return a_x + t * ab_x, a_y + t * ab_y, a_z + t * ab_z
 end
 
 -- model - ray intersection
@@ -45,35 +45,34 @@ end
 --     http://www.lighthouse3d.com/tutorials/maths/ray-triangle-intersection/
 local tiny = 2.2204460492503131e-16 -- the smallest possible value for a double, "double epsilon"
 local function triangleRay(
-        tri_0_x, tri_0_y, tri_0_z,
-        tri_1_x, tri_1_y, tri_1_z,
-        tri_2_x, tri_2_y, tri_2_z,
-        n_x, n_y, n_z,
-        src_x, src_y, src_z,
-        dir_x, dir_y, dir_z
-    )
-
+    tri_0_x, tri_0_y, tri_0_z,
+    tri_1_x, tri_1_y, tri_1_z,
+    tri_2_x, tri_2_y, tri_2_z,
+    n_x, n_y, n_z,
+    src_x, src_y, src_z,
+    dir_x, dir_y, dir_z
+)
     -- cache these variables for efficiency
-    local e11,e12,e13 = fastSubtract(tri_1_x,tri_1_y,tri_1_z, tri_0_x,tri_0_y,tri_0_z)
-    local e21,e22,e23 = fastSubtract(tri_2_x,tri_2_y,tri_2_z, tri_0_x,tri_0_y,tri_0_z)
-    local h1,h2,h3 = vectorCrossProduct(dir_x,dir_y,dir_z, e21,e22,e23)
-    local a = vectorDotProduct(h1,h2,h3, e11,e12,e13)
+    local e11, e12, e13 = fastSubtract(tri_1_x, tri_1_y, tri_1_z, tri_0_x, tri_0_y, tri_0_z)
+    local e21, e22, e23 = fastSubtract(tri_2_x, tri_2_y, tri_2_z, tri_0_x, tri_0_y, tri_0_z)
+    local h1, h2, h3 = vectorCrossProduct(dir_x, dir_y, dir_z, e21, e22, e23)
+    local a = vectorDotProduct(h1, h2, h3, e11, e12, e13)
 
     -- if a is too close to 0, ray does not intersect triangle
     if math.abs(a) <= tiny then
         return
     end
 
-    local s1,s2,s3 = fastSubtract(src_x,src_y,src_z, tri_0_x,tri_0_y,tri_0_z)
-    local u = vectorDotProduct(s1,s2,s3, h1,h2,h3) / a
+    local s1, s2, s3 = fastSubtract(src_x, src_y, src_z, tri_0_x, tri_0_y, tri_0_z)
+    local u = vectorDotProduct(s1, s2, s3, h1, h2, h3) / a
 
     -- ray does not intersect triangle
     if u < 0 or u > 1 then
         return
     end
 
-    local q1,q2,q3 = vectorCrossProduct(s1,s2,s3, e11,e12,e13)
-    local v = vectorDotProduct(dir_x,dir_y,dir_z, q1,q2,q3) / a
+    local q1, q2, q3 = vectorCrossProduct(s1, s2, s3, e11, e12, e13)
+    local v = vectorDotProduct(dir_x, dir_y, dir_z, q1, q2, q3) / a
 
     -- ray does not intersect triangle
     if v < 0 or u + v > 1 then
@@ -82,13 +81,14 @@ local function triangleRay(
 
     -- at this stage we can compute t to find out where
     -- the intersection point is on the line
-    local thisLength = vectorDotProduct(q1,q2,q3, e21,e22,e23) / a
+    local thisLength = vectorDotProduct(q1, q2, q3, e21, e22, e23) / a
 
     -- if hit this triangle and it's closer than any other hit triangle
     if thisLength >= tiny and (not finalLength or thisLength < finalLength) then
         --local norm_x, norm_y, norm_z = vectorCrossProduct(e11,e12,e13, e21,e22,e23)
 
-        return thisLength, src_x + dir_x*thisLength, src_y + dir_y*thisLength, src_z + dir_z*thisLength, n_x,n_y,n_z
+        return thisLength, src_x + dir_x * thisLength, src_y + dir_y * thisLength, src_z + dir_z * thisLength, n_x, n_y,
+            n_z
     end
 end
 
@@ -97,13 +97,12 @@ end
 -- sources:
 --     https://wickedengine.net/2020/04/26/capsule-collision-detection/
 local function triangleSphere(
-        tri_0_x, tri_0_y, tri_0_z,
-        tri_1_x, tri_1_y, tri_1_z,
-        tri_2_x, tri_2_y, tri_2_z,
-        tri_n_x, tri_n_y, tri_n_z,
-        src_x, src_y, src_z, radius
-    )
-
+    tri_0_x, tri_0_y, tri_0_z,
+    tri_1_x, tri_1_y, tri_1_z,
+    tri_2_x, tri_2_y, tri_2_z,
+    tri_n_x, tri_n_y, tri_n_z,
+    src_x, src_y, src_z, radius
+)
     -- recalculate surface normal of this triangle
     local side1_x, side1_y, side1_z = tri_1_x - tri_0_x, tri_1_y - tri_0_y, tri_1_z - tri_0_z
     local side2_x, side2_y, side2_z = tri_2_x - tri_0_x, tri_2_y - tri_0_y, tri_2_z - tri_0_z
@@ -122,12 +121,15 @@ local function triangleSphere(
 
     -- determine whether itx is inside the triangle
     -- project it onto the triangle and return if this is the case
-    local c0_x, c0_y, c0_z = vectorCrossProduct(itx_x - tri_0_x, itx_y - tri_0_y, itx_z - tri_0_z, tri_1_x - tri_0_x, tri_1_y - tri_0_y, tri_1_z - tri_0_z)
-    local c1_x, c1_y, c1_z = vectorCrossProduct(itx_x - tri_1_x, itx_y - tri_1_y, itx_z - tri_1_z, tri_2_x - tri_1_x, tri_2_y - tri_1_y, tri_2_z - tri_1_z)
-    local c2_x, c2_y, c2_z = vectorCrossProduct(itx_x - tri_2_x, itx_y - tri_2_y, itx_z - tri_2_z, tri_0_x - tri_2_x, tri_0_y - tri_2_y, tri_0_z - tri_2_z)
-    if  vectorDotProduct(c0_x, c0_y, c0_z, n_x, n_y, n_z) <= 0
-    and vectorDotProduct(c1_x, c1_y, c1_z, n_x, n_y, n_z) <= 0
-    and vectorDotProduct(c2_x, c2_y, c2_z, n_x, n_y, n_z) <= 0 then
+    local c0_x, c0_y, c0_z = vectorCrossProduct(itx_x - tri_0_x, itx_y - tri_0_y, itx_z - tri_0_z, tri_1_x - tri_0_x,
+        tri_1_y - tri_0_y, tri_1_z - tri_0_z)
+    local c1_x, c1_y, c1_z = vectorCrossProduct(itx_x - tri_1_x, itx_y - tri_1_y, itx_z - tri_1_z, tri_2_x - tri_1_x,
+        tri_2_y - tri_1_y, tri_2_z - tri_1_z)
+    local c2_x, c2_y, c2_z = vectorCrossProduct(itx_x - tri_2_x, itx_y - tri_2_y, itx_z - tri_2_z, tri_0_x - tri_2_x,
+        tri_0_y - tri_2_y, tri_0_z - tri_2_z)
+    if vectorDotProduct(c0_x, c0_y, c0_z, n_x, n_y, n_z) <= 0
+        and vectorDotProduct(c1_x, c1_y, c1_z, n_x, n_y, n_z) <= 0
+        and vectorDotProduct(c2_x, c2_y, c2_z, n_x, n_y, n_z) <= 0 then
         n_x, n_y, n_z = src_x - itx_x, src_y - itx_y, src_z - itx_z
 
         -- the sphere is inside the triangle, so the normal is zero
@@ -145,22 +147,25 @@ local function triangleSphere(
     local radiussq = radius * radius
     local smallestDist
 
-    local line1_x, line1_y, line1_z = closestPointOnLineSegment(tri_0_x, tri_0_y, tri_0_z, tri_1_x, tri_1_y, tri_1_z, src_x, src_y, src_z)
-    local dist = (src_x - line1_x)^2 + (src_y - line1_y)^2 + (src_z - line1_z)^2
+    local line1_x, line1_y, line1_z = closestPointOnLineSegment(tri_0_x, tri_0_y, tri_0_z, tri_1_x, tri_1_y, tri_1_z,
+        src_x, src_y, src_z)
+    local dist = (src_x - line1_x) ^ 2 + (src_y - line1_y) ^ 2 + (src_z - line1_z) ^ 2
     if dist <= radiussq then
         smallestDist = dist
         itx_x, itx_y, itx_z = line1_x, line1_y, line1_z
     end
 
-    local line2_x, line2_y, line2_z = closestPointOnLineSegment(tri_1_x, tri_1_y, tri_1_z, tri_2_x, tri_2_y, tri_2_z, src_x, src_y, src_z)
-    local dist = (src_x - line2_x)^2 + (src_y - line2_y)^2 + (src_z - line2_z)^2
+    local line2_x, line2_y, line2_z = closestPointOnLineSegment(tri_1_x, tri_1_y, tri_1_z, tri_2_x, tri_2_y, tri_2_z,
+        src_x, src_y, src_z)
+    local dist = (src_x - line2_x) ^ 2 + (src_y - line2_y) ^ 2 + (src_z - line2_z) ^ 2
     if (smallestDist and dist < smallestDist or not smallestDist) and dist <= radiussq then
         smallestDist = dist
         itx_x, itx_y, itx_z = line2_x, line2_y, line2_z
     end
 
-    local line3_x, line3_y, line3_z = closestPointOnLineSegment(tri_2_x, tri_2_y, tri_2_z, tri_0_x, tri_0_y, tri_0_z, src_x, src_y, src_z)
-    local dist = (src_x - line3_x)^2 + (src_y - line3_y)^2 + (src_z - line3_z)^2
+    local line3_x, line3_y, line3_z = closestPointOnLineSegment(tri_2_x, tri_2_y, tri_2_z, tri_0_x, tri_0_y, tri_0_z,
+        src_x, src_y, src_z)
+    local dist = (src_x - line3_x) ^ 2 + (src_y - line3_y) ^ 2 + (src_z - line3_z) ^ 2
     if (smallestDist and dist < smallestDist or not smallestDist) and dist <= radiussq then
         smallestDist = dist
         itx_x, itx_y, itx_z = line3_x, line3_y, line3_z
@@ -184,13 +189,12 @@ end
 -- sources:
 --     https://wickedengine.net/2020/04/26/capsule-collision-detection/
 local function trianglePoint(
-        tri_0_x, tri_0_y, tri_0_z,
-        tri_1_x, tri_1_y, tri_1_z,
-        tri_2_x, tri_2_y, tri_2_z,
-        tri_n_x, tri_n_y, tri_n_z,
-        src_x, src_y, src_z
-    )
-
+    tri_0_x, tri_0_y, tri_0_z,
+    tri_1_x, tri_1_y, tri_1_z,
+    tri_2_x, tri_2_y, tri_2_z,
+    tri_n_x, tri_n_y, tri_n_z,
+    src_x, src_y, src_z
+)
     -- recalculate surface normal of this triangle
     local side1_x, side1_y, side1_z = tri_1_x - tri_0_x, tri_1_y - tri_0_y, tri_1_z - tri_0_z
     local side2_x, side2_y, side2_z = tri_2_x - tri_0_x, tri_2_y - tri_0_y, tri_2_z - tri_0_z
@@ -204,12 +208,15 @@ local function trianglePoint(
 
     -- determine whether itx is inside the triangle
     -- project it onto the triangle and return if this is the case
-    local c0_x, c0_y, c0_z = vectorCrossProduct(itx_x - tri_0_x, itx_y - tri_0_y, itx_z - tri_0_z, tri_1_x - tri_0_x, tri_1_y - tri_0_y, tri_1_z - tri_0_z)
-    local c1_x, c1_y, c1_z = vectorCrossProduct(itx_x - tri_1_x, itx_y - tri_1_y, itx_z - tri_1_z, tri_2_x - tri_1_x, tri_2_y - tri_1_y, tri_2_z - tri_1_z)
-    local c2_x, c2_y, c2_z = vectorCrossProduct(itx_x - tri_2_x, itx_y - tri_2_y, itx_z - tri_2_z, tri_0_x - tri_2_x, tri_0_y - tri_2_y, tri_0_z - tri_2_z)
-    if  vectorDotProduct(c0_x, c0_y, c0_z, n_x, n_y, n_z) <= 0
-    and vectorDotProduct(c1_x, c1_y, c1_z, n_x, n_y, n_z) <= 0
-    and vectorDotProduct(c2_x, c2_y, c2_z, n_x, n_y, n_z) <= 0 then
+    local c0_x, c0_y, c0_z = vectorCrossProduct(itx_x - tri_0_x, itx_y - tri_0_y, itx_z - tri_0_z, tri_1_x - tri_0_x,
+        tri_1_y - tri_0_y, tri_1_z - tri_0_z)
+    local c1_x, c1_y, c1_z = vectorCrossProduct(itx_x - tri_1_x, itx_y - tri_1_y, itx_z - tri_1_z, tri_2_x - tri_1_x,
+        tri_2_y - tri_1_y, tri_2_z - tri_1_z)
+    local c2_x, c2_y, c2_z = vectorCrossProduct(itx_x - tri_2_x, itx_y - tri_2_y, itx_z - tri_2_z, tri_0_x - tri_2_x,
+        tri_0_y - tri_2_y, tri_0_z - tri_2_z)
+    if vectorDotProduct(c0_x, c0_y, c0_z, n_x, n_y, n_z) <= 0
+        and vectorDotProduct(c1_x, c1_y, c1_z, n_x, n_y, n_z) <= 0
+        and vectorDotProduct(c2_x, c2_y, c2_z, n_x, n_y, n_z) <= 0 then
         n_x, n_y, n_z = src_x - itx_x, src_y - itx_y, src_z - itx_z
 
         -- the sphere is inside the triangle, so the normal is zero
@@ -224,20 +231,23 @@ local function trianglePoint(
     -- itx is outside triangle
     -- find points on all three line segments that are closest to itx
     -- if distance between itx and one of these three closest points is in range, there is an intersection
-    local line1_x, line1_y, line1_z = closestPointOnLineSegment(tri_0_x, tri_0_y, tri_0_z, tri_1_x, tri_1_y, tri_1_z, src_x, src_y, src_z)
-    local dist = (src_x - line1_x)^2 + (src_y - line1_y)^2 + (src_z - line1_z)^2
+    local line1_x, line1_y, line1_z = closestPointOnLineSegment(tri_0_x, tri_0_y, tri_0_z, tri_1_x, tri_1_y, tri_1_z,
+        src_x, src_y, src_z)
+    local dist = (src_x - line1_x) ^ 2 + (src_y - line1_y) ^ 2 + (src_z - line1_z) ^ 2
     local smallestDist = dist
     itx_x, itx_y, itx_z = line1_x, line1_y, line1_z
 
-    local line2_x, line2_y, line2_z = closestPointOnLineSegment(tri_1_x, tri_1_y, tri_1_z, tri_2_x, tri_2_y, tri_2_z, src_x, src_y, src_z)
-    local dist = (src_x - line2_x)^2 + (src_y - line2_y)^2 + (src_z - line2_z)^2
+    local line2_x, line2_y, line2_z = closestPointOnLineSegment(tri_1_x, tri_1_y, tri_1_z, tri_2_x, tri_2_y, tri_2_z,
+        src_x, src_y, src_z)
+    local dist = (src_x - line2_x) ^ 2 + (src_y - line2_y) ^ 2 + (src_z - line2_z) ^ 2
     if smallestDist and dist < smallestDist then
         smallestDist = dist
         itx_x, itx_y, itx_z = line2_x, line2_y, line2_z
     end
 
-    local line3_x, line3_y, line3_z = closestPointOnLineSegment(tri_2_x, tri_2_y, tri_2_z, tri_0_x, tri_0_y, tri_0_z, src_x, src_y, src_z)
-    local dist = (src_x - line3_x)^2 + (src_y - line3_y)^2 + (src_z - line3_z)^2
+    local line3_x, line3_y, line3_z = closestPointOnLineSegment(tri_2_x, tri_2_y, tri_2_z, tri_0_x, tri_0_y, tri_0_z,
+        src_x, src_y, src_z)
+    local dist = (src_x - line3_x) ^ 2 + (src_y - line3_y) ^ 2 + (src_z - line3_z) ^ 2
     if smallestDist and dist < smallestDist then
         smallestDist = dist
         itx_x, itx_y, itx_z = line3_x, line3_y, line3_z
@@ -262,18 +272,17 @@ end
 -- sources:
 --     https://wickedengine.net/2020/04/26/capsule-collision-detection/
 local function triangleCapsule(
-        tri_0_x, tri_0_y, tri_0_z,
-        tri_1_x, tri_1_y, tri_1_z,
-        tri_2_x, tri_2_y, tri_2_z,
-        n_x, n_y, n_z,
-        tip_x, tip_y, tip_z,
-        base_x, base_y, base_z,
-        a_x, a_y, a_z,
-        b_x, b_y, b_z,
-        capn_x, capn_y, capn_z,
-        radius
-    )
-
+    tri_0_x, tri_0_y, tri_0_z,
+    tri_1_x, tri_1_y, tri_1_z,
+    tri_2_x, tri_2_y, tri_2_z,
+    n_x, n_y, n_z,
+    tip_x, tip_y, tip_z,
+    base_x, base_y, base_z,
+    a_x, a_y, a_z,
+    b_x, b_y, b_z,
+    capn_x, capn_y, capn_z,
+    radius
+)
     -- find the normal of this triangle
     -- tbd if necessary, this sometimes fixes weird edgecases
     local side1_x, side1_y, side1_z = tri_1_x - tri_0_x, tri_1_y - tri_0_y, tri_1_z - tri_0_z
@@ -289,8 +298,9 @@ local function triangleCapsule(
     if dotOfNormals > 0 then
         -- capsule is not parallel to the triangle's plane
         -- find where the capsule's normal vector intersects the triangle's plane
-        local t = vectorDotProduct(n_x, n_y, n_z, (tri_0_x - base_x) / dotOfNormals, (tri_0_y - base_y) / dotOfNormals, (tri_0_z - base_z) / dotOfNormals)
-        local plane_itx_x, plane_itx_y, plane_itx_z = base_x + capn_x*t, base_y + capn_y*t, base_z + capn_z*t
+        local t = vectorDotProduct(n_x, n_y, n_z, (tri_0_x - base_x) / dotOfNormals, (tri_0_y - base_y) / dotOfNormals,
+            (tri_0_z - base_z) / dotOfNormals)
+        local plane_itx_x, plane_itx_y, plane_itx_z = base_x + capn_x * t, base_y + capn_y * t, base_z + capn_z * t
         local _
 
         -- then clamp that plane intersect point onto the triangle itself
@@ -342,25 +352,25 @@ local function findClosest(self, verts, func, ...)
         end
     end
 
-    for v=1, #verts, 3 do
+    for v = 1, #verts, 3 do
         -- apply the function given with the arguments given
         -- also supply the points of the current triangle
         local n_x, n_y, n_z = vectorNormalize(
-            verts[v][6]*scale_x,
-            verts[v][7]*scale_x,
-            verts[v][8]*scale_x
+            verts[v][6] * scale_x,
+            verts[v][7] * scale_x,
+            verts[v][8] * scale_x
         )
 
-        local length, wx,wy,wz, nx,ny,nz = func(
-            verts[v][1]*scale_x + translation_x,
-            verts[v][2]*scale_y + translation_y,
-            verts[v][3]*scale_z + translation_z,
-            verts[v+1][1]*scale_x + translation_x,
-            verts[v+1][2]*scale_y + translation_y,
-            verts[v+1][3]*scale_z + translation_z,
-            verts[v+2][1]*scale_x + translation_x,
-            verts[v+2][2]*scale_y + translation_y,
-            verts[v+2][3]*scale_z + translation_z,
+        local length, wx, wy, wz, nx, ny, nz = func(
+            verts[v][1] * scale_x + translation_x,
+            verts[v][2] * scale_y + translation_y,
+            verts[v][3] * scale_z + translation_z,
+            verts[v + 1][1] * scale_x + translation_x,
+            verts[v + 1][2] * scale_y + translation_y,
+            verts[v + 1][3] * scale_z + translation_z,
+            verts[v + 2][1] * scale_x + translation_x,
+            verts[v + 2][2] * scale_y + translation_y,
+            verts[v + 2][3] * scale_z + translation_z,
             n_x,
             n_y,
             n_z,
@@ -407,25 +417,25 @@ local function findAny(self, verts, func, ...)
         end
     end
 
-    for v=1, #verts, 3 do
+    for v = 1, #verts, 3 do
         -- apply the function given with the arguments given
         -- also supply the points of the current triangle
         local n_x, n_y, n_z = vectorNormalize(
-            verts[v][6]*scale_x,
-            verts[v][7]*scale_x,
-            verts[v][8]*scale_x
+            verts[v][6] * scale_x,
+            verts[v][7] * scale_x,
+            verts[v][8] * scale_x
         )
 
         local length = func(
-            verts[v][1]*scale_x + translation_x,
-            verts[v][2]*scale_y + translation_y,
-            verts[v][3]*scale_z + translation_z,
-            verts[v+1][1]*scale_x + translation_x,
-            verts[v+1][2]*scale_y + translation_y,
-            verts[v+1][3]*scale_z + translation_z,
-            verts[v+2][1]*scale_x + translation_x,
-            verts[v+2][2]*scale_y + translation_y,
-            verts[v+2][3]*scale_z + translation_z,
+            verts[v][1] * scale_x + translation_x,
+            verts[v][2] * scale_y + translation_y,
+            verts[v][3] * scale_z + translation_z,
+            verts[v + 1][1] * scale_x + translation_x,
+            verts[v + 1][2] * scale_y + translation_y,
+            verts[v + 1][3] * scale_z + translation_z,
+            verts[v + 2][1] * scale_x + translation_x,
+            verts[v + 2][2] * scale_y + translation_y,
+            verts[v + 2][3] * scale_z + translation_z,
             n_x,
             n_y,
             n_z,
@@ -467,8 +477,8 @@ function collisions.capsuleIntersection(verts, transform, tip_x, tip_y, tip_z, b
 
     -- the base and tip, inset by the radius
     -- these two coordinates are the actual extent of the capsule sphere line
-    local a_x, a_y, a_z = base_x + norm_x*radius, base_y + norm_y*radius, base_z + norm_z*radius
-    local b_x, b_y, b_z = tip_x - norm_x*radius, tip_y - norm_y*radius, tip_z - norm_z*radius
+    local a_x, a_y, a_z = base_x + norm_x * radius, base_y + norm_y * radius, base_z + norm_z * radius
+    local b_x, b_y, b_z = tip_x - norm_x * radius, tip_y - norm_y * radius, tip_z - norm_z * radius
 
     return findClosest(
         transform,
