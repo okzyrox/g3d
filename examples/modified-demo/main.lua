@@ -1,5 +1,5 @@
 -- g3d example
-local g3d = require "g3d"
+local g3d = require "path.to.g3d"
 local World = g3d.world.newWorld() 
 -- world automatically attaches a camera to itself
 local earth = g3d.newModel("assets/sphere.obj", "assets/earth.png", {4,0,0})
