@@ -1,5 +1,7 @@
-
+# OS Files
 .DS_Store
-*/Thumbs.db
-docs/*
 Thumbs.db
+
+# Editors
+.idea/
+.vscode/

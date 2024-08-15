@@ -8,7 +8,7 @@
 
 -- give path of file
 -- returns a lua table representation
-return function (path, uFlip, vFlip)
+return function(path, uFlip, vFlip)
     local positions, uvs, normals = {}, {}, {}
     local result = {}
 
@@ -26,7 +26,7 @@ return function (path, uFlip, vFlip)
         if firstWord == "v" then
             -- if the first word in this line is a "v", then this defines a vertex's position
 
-            table.insert(positions, {tonumber(words[2]), tonumber(words[3]), tonumber(words[4])})
+            table.insert(positions, { tonumber(words[2]), tonumber(words[3]), tonumber(words[4]) })
         elseif firstWord == "vt" then
             -- if the first word in this line is a "vt", then this defines a texture coordinate
 
@@ -36,12 +36,11 @@ return function (path, uFlip, vFlip)
             if uFlip then u = 1 - u end
             if vFlip then v = 1 - v end
 
-            table.insert(uvs, {u, v})
+            table.insert(uvs, { u, v })
         elseif firstWord == "vn" then
             -- if the first word in this line is a "vn", then this defines a vertex normal
-            table.insert(normals, {tonumber(words[2]), tonumber(words[3]), tonumber(words[4])})
+            table.insert(normals, { tonumber(words[2]), tonumber(words[3]), tonumber(words[4]) })
         elseif firstWord == "f" then
-
             -- if the first word in this line is a "f", then this is a face
             -- a face takes three point definitions
             -- the arguments a point definition takes are vertex, vertex texture, vertex normal in that order
@@ -78,7 +77,6 @@ return function (path, uFlip, vFlip)
                     table.insert(result, vertices[i])
                 end
             end
-
         end
     end
 
