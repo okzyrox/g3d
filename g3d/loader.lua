@@ -2,13 +2,16 @@
 -- september 2021
 -- MIT license
 
+local Class = require(g3d.path .. ".lib.classic")
+
 ----------------------------------------------------------------------------------------------------
 -- simple obj loader
 ----------------------------------------------------------------------------------------------------
 
 -- give path of file
 -- returns a lua table representation
-return function(path, uFlip, vFlip)
+local loader = Class:extend()
+function loader:loadObj(path, uFlip, vFlip)
     local positions, uvs, normals = {}, {}, {}
     local result = {}
 
@@ -82,3 +85,5 @@ return function(path, uFlip, vFlip)
 
     return result
 end
+
+return loader

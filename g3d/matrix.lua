@@ -3,6 +3,8 @@
 -- MIT license
 
 local vectors = require(g3d.path .. ".vectors")
+local Class = require(g3d.path .. ".lib.classic")
+
 local vectorCrossProduct = vectors.crossProduct
 local vectorDotProduct = vectors.dotProduct
 local vectorNormalize = vectors.normalize
@@ -20,13 +22,9 @@ local vectorNormalize = vectors.normalize
 -- |                 |
 -- |  13  14  15  16 |
 
-local matrix = {}
-matrix.__index = matrix
+local Matrix = Class:extend()
 
-local function newMatrix()
-    local self = setmetatable({}, matrix)
-
-    -- initialize a matrix as the identity matrix
+function Matrix:new()
     self[1], self[2], self[3], self[4] = 1, 0, 0, 0
     self[5], self[6], self[7], self[8] = 0, 1, 0, 0
     self[9], self[10], self[11], self[12] = 0, 0, 1, 0
@@ -34,10 +32,9 @@ local function newMatrix()
 
     return self
 end
-
 -- automatically converts a matrix to a string
 -- for printing to console and debugging
-function matrix:__tostring()
+function Matrix:__tostring()
     return ("[%f\t%f\t%f\t%f]\n[%f\t%f\t%f\t%f]\n[%f\t%f\t%f\t%f]\n[%f\t%f\t%f\t%f]"):format(unpack(self))
 end
 
@@ -49,7 +46,7 @@ end
 
 -- returns a transformation matrix
 -- translation, rotation, and scale are all 3d vectors
-function matrix:setTransformationMatrix(translation, rotation, scale)
+function Matrix:setTransformationMatrix(translation, rotation, scale)
     -- translations
     self[4] = translation[1]
     self[8] = translation[2]
@@ -86,7 +83,7 @@ end
 -- (things farther away appear smaller)
 -- all arguments are scalars aka normal numbers
 -- aspectRatio is defined as window width divided by window height
-function matrix:setProjectionMatrix(fov, near, far, aspectRatio)
+function Matrix:setProjectionMatrix(fov, near, far, aspectRatio)
     local top = near * math.tan(fov/2)
     local bottom = -1*top
     local right = top * aspectRatio
@@ -102,7 +99,7 @@ end
 -- (things farther away are the same size as things closer)
 -- all arguments are scalars aka normal numbers
 -- aspectRatio is defined as window width divided by window height
-function matrix:setOrthographicMatrix(fov, size, near, far, aspectRatio)
+function Matrix:setOrthographicMatrix(fov, size, near, far, aspectRatio)
     local top = size * math.tan(fov/2)
     local bottom = -1*top
     local right = top * aspectRatio
@@ -116,7 +113,7 @@ end
 
 -- returns a view matrix
 -- eye, target, and up are all 3d vectors
-function matrix:setViewMatrix(eye, target, up)
+function Matrix:setViewMatrix(eye, target, up)
     local z1, z2, z3 = vectorNormalize(eye[1] - target[1], eye[2] - target[2], eye[3] - target[3])
     local x1, x2, x3 = vectorNormalize(vectorCrossProduct(up[1], up[2], up[3], z1, z2, z3))
     local y1, y2, y3 = vectorCrossProduct(z1, z2, z3, x1, x2, x3)
@@ -127,4 +124,10 @@ function matrix:setViewMatrix(eye, target, up)
     self[13], self[14], self[15], self[16] = 0, 0, 0, 1
 end
 
-return newMatrix
+function Matrix.newMatrix()
+    -- it looks weird just calling the whole module
+    -- so this is cleaner
+    return Matrix()
+end
+
+return Matrix

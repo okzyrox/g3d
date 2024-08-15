@@ -2,8 +2,8 @@
 -- september 2021
 -- MIT license
 
-local newMatrix = require(g3d.path .. ".matrices")
-local loadObjFile = require(g3d.path .. ".objloader")
+local Matrix = require(g3d.path .. ".matrix")
+local loader = require(g3d.path .. ".loader")
 local collisions = require(g3d.path .. ".collisions")
 local vectors = require(g3d.path .. ".vectors")
 local camera = require(g3d.path .. ".camera")
@@ -36,7 +36,7 @@ local function newModel(verts, texture, translation, rotation, scale)
     -- if verts is a string, use it as a path to a .obj file
     -- otherwise verts is a table, use it as a model defintion
     if type(verts) == "string" then
-        verts = loadObjFile(verts)
+        verts = loader:loadObj(verts)
     end
 
     -- if texture is a string, use it as a path to an image file
@@ -50,7 +50,7 @@ local function newModel(verts, texture, translation, rotation, scale)
     self.texture = texture
     self.mesh = love.graphics.newMesh(self.vertexFormat, self.verts, "triangles")
     self.mesh:setTexture(self.texture)
-    self.matrix = newMatrix()
+    self.matrix = Matrix.newMatrix()
     if type(scale) == "number" then scale = { scale, scale, scale } end
     self:setTransform(translation or { 0, 0, 0 }, rotation or { 0, 0, 0 }, scale or { 1, 1, 1 })
 
@@ -146,8 +146,8 @@ function model:draw(shader)
     local shader = shader or self.shader
     love.graphics.setShader(shader)
     shader:send("modelMatrix", self.matrix)
-    shader:send("viewMatrix", camera.viewMatrix)
-    shader:send("projectionMatrix", camera.projectionMatrix)
+    shader:send("viewMatrix", camera.getCurrent():getViewMatrix()) -- Might add these functions to the `cameras` class, which just calls the functions from the current camera
+    shader:send("projectionMatrix", camera.getCurrent():getProjectionMatrix())
     if shader:hasUniform "isCanvasEnabled" then
         shader:send("isCanvasEnabled", love.graphics.getCanvas() ~= nil)
     end
