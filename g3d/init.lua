@@ -42,10 +42,11 @@ g3d = {
         SOFTWARE.
     ]],
     path = ...,
-    shaderpath = (...):gsub("%.", "/") .. "/g3d.vert",
+    shaderpath = (...):gsub("%.", "/") .. "/g3d.glsl",
 }
 
 -- the shader is what does the heavy lifting, displaying 3D meshes on your 2D monitor
+--g3d.shader_vert = love.graphics.newShader(g3d.vertshaderpath)
 g3d.shader = love.graphics.newShader(g3d.shaderpath)
 g3d.world = require(g3d.path .. ".world")
 g3d.model = require(g3d.path .. ".model")

@@ -142,12 +142,18 @@ function Model:updateMatrix()
 end
 
 -- draw the model
-function Model:draw(shader)
+function Model:draw(shader, light)
     local shader = shader or self.shader
     love.graphics.setShader(shader)
     shader:send("modelMatrix", self.matrix)
     shader:send("viewMatrix", camera.getCurrent():getViewMatrix()) -- Might add these functions to the `cameras` class, which just calls the functions from the current camera
     shader:send("projectionMatrix", camera.getCurrent():getProjectionMatrix())
+    if light then
+        shader:send("lightPosition", light.position)
+        shader:send("lightDirection", light.direction)
+        shader:send("lightColor", light.color)
+        shader:send("lightIntensity", light.intensity)
+    end
     if shader:hasUniform "isCanvasEnabled" then
         shader:send("isCanvasEnabled", love.graphics.getCanvas() ~= nil)
     end

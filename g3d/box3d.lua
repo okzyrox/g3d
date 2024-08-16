@@ -10,7 +10,6 @@ local model = require(g3d.path .. ".model")
 local Class = require("lib.classic")
 
 local box_asset = g3d.path .. "/assets/box.obj"
-local shader = g3d.shader
 
 local Box3D = Class:extend()
 
