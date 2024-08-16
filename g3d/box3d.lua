@@ -17,11 +17,11 @@ function Box3D:new(texture, position, rotation, scale)
     self.model = model.newModel(box_asset, texture, position, rotation, scale)
     
     -- Physics properties
-    self.position = position
+    self.position = {position[1], position[3], position[2]}
     self.velocity = {x = 0, y = 0, z = 0}
     self.acceleration = {x = 0, y = 0, z = 0}
     self.mass = 1
-    self.gravity = {x = 0, y = -9.81, z = 0}
+    self.gravity = {x = 0, y = -5, z = 0}
     self.friction = 0.1
     self.restitution = 0.5
     
@@ -29,47 +29,68 @@ function Box3D:new(texture, position, rotation, scale)
         min = {x = -0.5, y = -0.5, z = -0.5},
         max = {x = 0.5, y = 0.5, z = 0.5}
     }
+
+    self.model:setTranslation(self.position[1], self.position[3], self.position[2])
 end
 
 function Box3D:update(dt)
     -- Apply gravity
-
-    self.acceleration.x = self.acceleration.x * 0.1 + self.gravity.x
-    self.acceleration.y = self.acceleration.y * 0.1 + self.gravity.y
-    self.acceleration.z = self.acceleration.z * 0.1 * self.gravity.z
-    
-    self.velocity.x = self.velocity.x + self.acceleration.x * dt
-    self.velocity.y = self.velocity.y + self.acceleration.y * dt
-    self.velocity.z = self.velocity.z + self.acceleration.z * dt
-    
+    self.acceleration.x = (self.acceleration.x * self.mass) + self.gravity.x
+    self.acceleration.y = (self.acceleration.y * self.mass) + self.gravity.y
+    self.acceleration.z = (self.acceleration.z * self.mass) + self.gravity.z
+    if math.max(self.acceleration.x, 0) == 0 then
+        self.acceleration.x = 0
+    end
+    if math.max(self.acceleration.y, 0) == 0 then
+        self.acceleration.y = 0
+    end
+    if math.max(self.acceleration.z, 0) == 0 then
+        self.acceleration.z = 0
+    end
     local frictionFactor = 1 - self.friction * dt
-    self.velocity.x = self.velocity.x * frictionFactor
-    self.velocity.z = self.velocity.z * frictionFactor
+    
+    if self.acceleration.x == 0 and self.acceleration.y == 0 and self.acceleration.z == 0 then
+        self.velocity.x = self.velocity.x * frictionFactor
+        self.velocity.z = self.velocity.z * frictionFactor
+    else
+        self.velocity.x = self.velocity.x + self.acceleration.x * dt
+        self.velocity.y = self.velocity.y + self.acceleration.y * dt
+        self.velocity.z = self.velocity.z + self.acceleration.z * dt
+    end
+    
+    
     
     local newPosition = {
-        self.position[1] + self.velocity.x * dt,
-        self.position[2] + self.velocity.y * dt,
-        self.position[3] + self.velocity.z * dt
+        [1] = self.position[1] + self.velocity.x * dt,
+        [2] = self.position[2] + self.velocity.z * dt,
+        [3] = self.position[3] + self.velocity.y * dt
     }
     
     -- Ground is 0
-    if newPosition[2] < 0 then
-        newPosition[2] = 0
+    if newPosition[3] < 0 then
+        newPosition[3] = 0
         self.velocity.y = -self.velocity.y * self.restitution
     end
-    
+
     -- Update model
     self.position = newPosition
-    self.model:setTranslation(newPosition[1], newPosition[2], newPosition[3])
+    self.model:setTranslation(newPosition[1], newPosition[3], newPosition[2])
 end
 
-function Box3D:applyForce(fx, fy, fz)
-    print("Accel: x: ", self.acceleration.x, "y: ", self.acceleration.y, "z: ", self.acceleration.z)
+function Box3D:applyForce(fx, fz, fy) -- Hack because for some reason y and z are swapped with the drawing?
     self.acceleration.x = self.acceleration.x + fx / self.mass
     self.acceleration.y = self.acceleration.y + fy / self.mass
     self.acceleration.z = self.acceleration.z + fz / self.mass
-    print("Accel: x: ", self.acceleration.x, "y: ", self.acceleration.y, "z: ", self.acceleration.z)
 
+end
+
+function Box3D:getPosition()
+    return {
+        x = self.position[1],
+        y = self.position[2],
+        z = self.position[3]
+    }
+    
 end
 
 function Box3D:checkCollision(other)
@@ -87,13 +108,13 @@ function Box3D:getWorldBoundingBox()
     return {
         min = {
             x = pos[1] + self.boundingBox.min.x * scale[1],
-            y = pos[2] + self.boundingBox.min.y * scale[2],
-            z = pos[3] + self.boundingBox.min.z * scale[3]
+            y = pos[3] + self.boundingBox.min.y * scale[2],
+            z = pos[2] + self.boundingBox.min.z * scale[3]
         },
         max = {
             x = pos[1] + self.boundingBox.max.x * scale[1],
-            y = pos[2] + self.boundingBox.max.y * scale[2],
-            z = pos[3] + self.boundingBox.max.z * scale[3]
+            y = pos[3] + self.boundingBox.max.y * scale[2],
+            z = pos[2] + self.boundingBox.max.z * scale[3]
         }
     }
 end
