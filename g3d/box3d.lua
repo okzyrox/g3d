@@ -173,6 +173,10 @@ function Box3D:setStatic(state)
     self.static_block = state
 end
 
+function Box3D:isOnGround()
+    return self.position[2] == 0
+end
+
 function Box3D:checkCollision(other)
     local a = self:getWorldBoundingBox()
     local b = other:getWorldBoundingBox()
