@@ -55,7 +55,7 @@ g3d.cameras = require(g3d.path .. ".camera")
 g3d.collisions = require(g3d.path .. ".collisions")
 g3d.loader = require(g3d.path .. ".loader")
 g3d.vectors = require(g3d.path .. ".vectors")
-
+g3d.light = require(g3d.path .. ".light")
 -- Compat with older g3d
 
 -- this returns a new instance of the model class

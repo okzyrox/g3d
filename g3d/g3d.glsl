@@ -9,10 +9,11 @@ varying vec2 UV;
 varying vec3 fragPosition;
 varying vec3 fragNormal;
 
-uniform vec3 lightPosition;
-uniform vec3 lightDirection;
-uniform vec3 lightColor;
-uniform float lightIntensity;
+uniform int numLights;
+uniform vec3 lightPosition[255];
+uniform vec3 lightDirection[255];
+uniform vec3 lightColor[255];
+uniform float lightIntensity[255];
 varying vec4 vertexColor;
 
 // this vertex shader is what projects 3d vertices in models onto your 2d screen
@@ -56,18 +57,23 @@ vec4 position(mat4 transformProjection, vec4 vertexPosition) {
 }
 #endif
 #ifdef PIXEL
-void pixel() {
+
+void pixel(vec4 color, vec2 screen_coords) {
     vec4 textureColor = Texel(MainTexture, UV);
     vec3 normal = normalize(fragNormal);
-    vec3 lightDir = normalize(lightPosition - fragPosition);
     
-    float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor * lightIntensity;
+    vec3 result = vec3(0.0);
     
-    vec3 ambient = 0.1 * lightColor;
+    for (int i = 0; i < numLights; i++) {
+        vec3 lightDir = normalize(lightPosition[i] - fragPosition);
+        float diff = max(dot(normal, lightDir), 0.0);
+        vec3 diffuse = diff * lightColor[i] * lightIntensity[i];
+        
+        vec3 ambient = 0.1 * lightColor[i];
+        
+        result += (ambient + diffuse) * textureColor.rgb;
+    }
     
-    vec3 result = (ambient + diffuse) * textureColor.rgb;
-    
-    love_Canvases[0] = vec4(result, textureColor.a) * vertexColor;
+    love_Canvases[0] = vec4(result, textureColor.a) * vertexColor * color;
 }
 #endif
