@@ -22,13 +22,13 @@ function cameras:setCurrent(new_cam)
 end
 
 function camera:new()
-    self.fov = math.pi/2
+    self.fov = math.pi / 2
     self.nearClip = 0.01
     self.farClip = 1000
-    self.aspectRatio = love.graphics.getWidth()/love.graphics.getHeight()
+    self.aspectRatio = love.graphics.getWidth() / love.graphics.getHeight()
     self.position = {0,0,0}
-    self.target = {1,0,0}
-    self.up = {0,0,1}
+    self.target = {1, 0, 0}
+    self.up = {0, 0, 1}
     self.speed = 9
     self.mouse_locked = false
 
@@ -188,6 +188,12 @@ end
 function camera:keypressed(key)
     if key == "lshift" or key == "rshift" then
         camera:setLocked(not camera.mouse_locked)
+    end
+    if key == "lctrl" then
+        self.speed = self.speed * 2
+    end
+    if key == "rctrl" then
+        self.speed = self.speed / 2
     end
 end
 

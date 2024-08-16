@@ -49,6 +49,7 @@ g3d = {
 g3d.shader = love.graphics.newShader(g3d.shaderpath)
 g3d.world = require(g3d.path .. ".world")
 g3d.model = require(g3d.path .. ".model")
+g3d.box3d = require(g3d.path .. ".box3d")
 g3d.cameras = require(g3d.path .. ".camera")
 g3d.collisions = require(g3d.path .. ".collisions")
 g3d.loader = require(g3d.path .. ".loader")
